@@ -12,3 +12,5 @@ int main() {
   // getch();
   return closeScreen(0);
 }
+
+// cd dev/cpp/minesweeper

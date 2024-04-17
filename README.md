@@ -11,7 +11,6 @@ make compile
 make run
 ```
 
-<kbd>Space</kbd> or <kbd>Enter</kbd> to Select
-Arrows to move around
+<kbd>Space</kbd> or <kbd>Enter</kbd> to *Select* and *Arrows* to move around
 
 Made by Mason Tuttle

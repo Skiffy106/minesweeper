@@ -19,14 +19,6 @@
 void Minesweeper::generateGame() {
   int minesPlaced = 0;
 
-  // clear(); // debug
-  // char *tmp = new char[100];
-  // sprintf(tmp, "%d", mines);
-  // addstr(tmp);
-  // delete[] tmp;
-  // refresh();
-  // getch();
-
   while (minesPlaced < mines) {
     int x = rand() % game_width;
     int y = rand() % game_height;
@@ -50,7 +42,11 @@ void Minesweeper::generateGame() {
 
 Minesweeper::Minesweeper() {
   srand(SEED);
+  // srand(SEED);
+  initClass();
+}
 
+void Minesweeper::initClass() {
   getmaxyx(stdscr, height, width);
 
   cursorX = width / 2;
@@ -64,9 +60,21 @@ Minesweeper::Minesweeper() {
     board[i].resize(game_width, NOBOMB);
   }
 
+  for (int i = 0; i < game_width; i++) {
+    for (int j = 0; j < game_height; j++) {
+      board[j][i] = NOBOMB;
+    }
+  }
+
   shown.resize(game_height);
   for (int i = 0; i < game_height; ++i) {
     shown[i].resize(game_width, false);
+  }
+
+  for (int i = 0; i < game_width; i++) {
+    for (int j = 0; j < game_height; j++) {
+      shown[j][i] = false;
+    }
   }
 }
 
@@ -123,8 +131,8 @@ void Minesweeper::handleMenu() {
   attron(COLOR_PAIR(COLOR_NORMAL));  // turn on white text
 
   clear();
-  while (input != 10) {       // enter
-    selection %= numOptions;  // wrap selection
+  while (input != 10 || input == ' ') {  // enter or space
+    selection %= numOptions;             // wrap selection
     for (int i = 0; i < numOptions; i++) {
       x_offset = (width - strlen(options[i])) / 2;  // center text in x
       if (i == selection) attron(COLOR_PAIR(COLOR_SELECT));
@@ -149,6 +157,7 @@ void Minesweeper::handleMenu() {
   // C++ is so weird
   char top[9] = "Made by:";
   char bottom[14] = "Mason Tuttle!";
+  char message[28] = "Custom not implemented yet.";
 
   switch (selection) {
     case 0:
@@ -165,7 +174,11 @@ void Minesweeper::handleMenu() {
       break;
 
     case 3:  // custom not implemented
-      return (void)closeScreen(0);
+      clear();
+      mvaddstr(height / 2 - 1, (width - strlen(message)) / 2, message);
+      refresh();
+      getch();
+      return handleMenu();
     case 4:
       clear();
       mvaddstr(height / 2 - 1, (width - strlen(top)) / 2, top);
@@ -186,11 +199,10 @@ void Minesweeper::showBoard() {
   int top = (height - game_height) / 2;
 
   clear();
-  char *tmp = new char[100];
+  char *tmp = new char[50];
 
   move(0, 0);
-  sprintf(tmp, "%d %d %d %d %d %d", width, height, game_width, game_height,
-          left, top);
+  sprintf(tmp, "Cursor: %d %d", cursorX, cursorY);
   // sprintf(tmp, "%lu %lu", board.size(), board[0].size());
   addstr(tmp);
   delete[] tmp;
@@ -201,11 +213,11 @@ void Minesweeper::showBoard() {
     for (int j = 0; j < board[i].size(); j++) {
       move(top + i, left + j);
       // move(top, left);
-      // if (shown[i][j]) {
-      addch(board.at(i).at(j));
-      // } else {
-      // addch(NOBOMB);
-      // }
+      if (shown[i][j]) {
+        addch(board.at(i).at(j));
+      } else {
+        addch(NOBOMB);
+      }
     }
   }
   attron(COLOR_PAIR(COLOR_NORMAL));
@@ -217,36 +229,122 @@ void Minesweeper::showCursor() {
   // show cursor
   attron(COLOR_PAIR(COLOR_SELECT));
   move(cursorY, cursorX);
-  // if (shown[cursorY][cursorX]) {
-  // addch(board.at(cursorY).at(cursorX));
-  // } else {
   addch(CURSOR);
-  // }
   attron(COLOR_PAIR(COLOR_NORMAL));
+}
+
+void Minesweeper::showLose() {
+  char top[10] = "You Lost!";
+  char bottom[28] = "Press any key to try again.";
+  clear();
+  mvaddstr(height / 2 - 1, (width - strlen(top)) / 2, top);
+  mvaddstr(height / 2, (width - strlen(bottom)) / 2, bottom);
+  refresh();
+  getch();
+}
+
+void Minesweeper::showWin() {
+  attron(COLOR_PAIR(COLOR_SELECT));
+  char top[10] = "You Won!";
+  char bottom[28] = "Press any key to try again.";
+  clear();
+  mvaddstr(height / 2 - 1, (width - strlen(top)) / 2, top);
+  mvaddstr(height / 2, (width - strlen(bottom)) / 2, bottom);
+  refresh();
+  attron(COLOR_PAIR(COLOR_NORMAL));
+  getch();
 }
 
 void Minesweeper::playGame() {
   handleMenu();
   generateGame();
   showBoard();
-  getch();
+  showCursor();
   int input;
-  // while (input != KEY_ENTER) {  // enter
-  //   // showBoard();
-  //   input = getch();
-  //   switch (input) {
-  //     case KEY_UP:
-  //       cursorY++;
-  //       break;
-  //     case KEY_DOWN:
-  //       cursorY--;
-  //       break;
-  //     case KEY_LEFT:
-  //       cursorX--;
-  //       break;
-  //     case KEY_RIGHT:
-  //       cursorX++;
-  //       break;
-  //   }
-  // }
+
+  int left = (width - game_width) / 2;
+  int top = (height - game_height) / 2;
+  while (input != 27 && input != (int)'q') {  // esc or q
+    showBoard();
+    showCursor();
+    input = getch();
+    switch (input) {
+      case KEY_UP:
+        cursorY--;
+        break;
+      case KEY_DOWN:
+        cursorY++;
+        break;
+      case KEY_LEFT:
+        cursorX--;
+        break;
+      case KEY_RIGHT:
+        cursorX++;
+        break;
+    }
+
+    if (cursorX < left) cursorX = left + game_width - 1;
+    if (cursorX >= left + game_width) cursorX = left;
+    if (cursorY < top) cursorY = top + game_height - 1;
+    if (cursorY >= top + game_height) cursorY = top;
+
+    if (input == 10 || input == ' ') {  // enter
+      // local -> global coords
+
+      shown[cursorY - top][cursorX - left] = true;
+      floodFill(cursorX - left, cursorY - top);
+
+      if (board[cursorY - top][cursorX - left] == BOMB) {
+        showLose();
+        initClass();
+        srand(time(nullptr));
+        return playGame();
+      }
+
+      if (isWon()) {
+        showWin();
+        initClass();
+        srand(time(nullptr));
+        return playGame();
+      }
+    }
+  }
+}
+
+bool Minesweeper::isWon() {
+  int hiddenCounter = 0;
+  for (int i = 0; i < board.size(); i++) {
+    for (int j = 0; j < board[i].size(); j++) {
+      if (!shown[i][j]) {
+        hiddenCounter++;
+      }
+    }
+  }
+  if (hiddenCounter == mines) {
+    return true;
+  }
+  return false;
+}
+
+void Minesweeper::floodFill(int x, int y) {
+  if (x < 0 || x >= game_width || y < 0 || y >= game_height) return;
+
+  // show cell  (y, x)
+  shown[y][x] = true;
+
+  // Recursively call for north, east, south and west
+  if (board[y][x] != '0') return;
+  if (x + 1 < game_width && !shown[y][x + 1]) floodFill(x + 1, y);
+  if (x - 1 >= 0 && !shown[y][x - 1]) floodFill(x - 1, y);
+  if (y + 1 < game_height && !shown[y + 1][x]) floodFill(x, y + 1);
+  if (y - 1 >= 0 && !shown[y - 1][x]) floodFill(x, y - 1);
+
+  // corners
+  if (x - 1 >= 0 && y - 1 >= 0 && !shown[y - 1][x - 1]) floodFill(x - 1, y - 1);
+  if (x - 1 >= 0 && y + 1 < game_height && !shown[y + 1][x - 1])
+    floodFill(x - 1, y + 1);
+  if (x + 1 < game_width && y - 1 >= 0 && !shown[y - 1][x + 1])
+    floodFill(x + 1, y - 1);
+  if (x + 1 < game_width && y + 1 < game_height && !shown[y + 1][x + 1])
+    floodFill(x + 1, y + 1);
 }

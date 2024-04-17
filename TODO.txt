@@ -1,7 +1,0 @@
-Hey whoever grades this. VS code crashed and I lost my work.
-
-Here is the github link to the working project (hopefully): https://github.com/Skiffy106/minesweeper
-
-Sorry for the inconvenience
-
--Mason Tuttle

@@ -12,6 +12,11 @@ class Minesweeper {
   int getNeighbors(int row, int col);
   void showBoard();
   void showCursor();
+  void initClass();
+  void showLose();
+  void showWin();
+  bool isWon();
+  void floodFill(int x, int y);
 
  public:
   Minesweeper();

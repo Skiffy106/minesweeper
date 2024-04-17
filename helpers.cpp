@@ -18,8 +18,8 @@ int initializeScreen() {
   return 0;
 }
 
-int closeScreen(int state) {
+void closeScreen(int state) {
   clear();
   endwin();
-  return state;
+  exit(state);
 }

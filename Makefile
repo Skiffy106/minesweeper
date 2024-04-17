@@ -5,3 +5,6 @@ compile: main.cpp helpers.cpp minesweeper.cpp
 
 run: main.o
 	./main.o
+
+clean:
+	rm main.o

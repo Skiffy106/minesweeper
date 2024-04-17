@@ -4,13 +4,12 @@
 #include "minesweeper.h"
 
 int main() {
-  if (initializeScreen() != 0) return closeScreen(1);
+  if (initializeScreen() != 0) closeScreen(1);
 
   Minesweeper game;
   game.playGame();
 
-  // getch();
-  return closeScreen(0);
+  closeScreen(0);
 }
 
 // cd dev/cpp/minesweeper
